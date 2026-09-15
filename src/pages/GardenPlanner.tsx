@@ -44,7 +44,7 @@ export function GardenPlanner() {
   const [recommendations, setRecommendations] = useState<PlantRecommendation[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [response, setResponse] = useState<{ text: string; model: string; provider: 'gemini'; error?: string } | null>(null); // Gemini response
-  const { generateResponse } = useAI({ type: 'planning' });
+  const { generateResponse, getCurrentModel } = useAI({ type: 'planning' });
 
   const totalSteps = 4;
 
@@ -78,7 +78,7 @@ export function GardenPlanner() {
       const geminiResponse: string = await generateResponse(planningPrompt);
       setResponse({
         text: geminiResponse,
-        model: 'gemini',
+        model: getCurrentModel() || 'gemini-2.5-flash-lite',
         provider: 'gemini',
       });
     } catch (error: any) {

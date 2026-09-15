@@ -63,23 +63,15 @@ src/
 
 ### API Keys Required
 
-- **OpenAI API**: For AI chatbot functionality
-- **Gemini API**: Alternative AI provider
-- **DeepSeek API**: Fallback AI provider
-- **Plant.id API**: For plant identification
-- **OpenWeather API**: For weather-based tips
-- **Firebase**: For authentication and database
+- **Gemini API**: Primary AI provider powering chatbot, garden planner, and plant identification (using Gemini 2.5 Flash-Lite)
 
 ### Environment Variables
 
-Copy `.env.example` to `.env` and fill in your API keys:
+Copy `.env.example` to `.env` and fill in your API key:
 
 ```env
-VITE_OPENAI_API_KEY=your_openai_api_key_here
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
-VITE_DEEPSEEK_API_KEY=your_deepseek_api_key_here
-VITE_PLANT_ID_API_KEY=your_plant_id_api_key_here
-VITE_OPENWEATHER_API_KEY=your_openweather_api_key_here
+VITE_GEMINI_MODEL=gemini-2.5-flash-lite
 ```
 
 ## 🎨 Design System

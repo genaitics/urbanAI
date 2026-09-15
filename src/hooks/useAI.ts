@@ -28,9 +28,10 @@ export function useAI(options: UseAIOptions = {}) {
     setError(null);
 
     try {
-      // Only pass message and context if supported, otherwise just message
       const response = await orchestratorRef.current.generateResponse(
-        message
+        message,
+        options.type,
+        context
       );
       return response.text || response;
     } catch (err: any) {
@@ -54,9 +55,10 @@ export function useAI(options: UseAIOptions = {}) {
     setError(null);
 
     try {
-      // Only pass message and context if supported, otherwise just message
       const stream = await orchestratorRef.current.generateStreamResponse(
-        message
+        message,
+        options.type,
+        context
       );
       return stream;
     } catch (err: any) {

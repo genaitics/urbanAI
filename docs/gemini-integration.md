@@ -1,8 +1,8 @@
-# Gemini 2.0 Flash Integration Documentation
+# Gemini 2.5 Flash-Lite Integration Documentation
 
 ## Overview
 
-This document provides comprehensive guidance for integrating Google's Gemini 2.0 Flash AI model into the Urban Harvest AI application.
+This document provides comprehensive guidance for integrating Google's Gemini 2.5 Flash-Lite AI model into the Urban Harvest AI application.
 
 ## System Requirements
 
@@ -29,7 +29,7 @@ This document provides comprehensive guidance for integrating Google's Gemini 2.
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
 
 # Optional Configuration
-VITE_GEMINI_MODEL=gemini-2.0-flash-exp
+VITE_GEMINI_MODEL=gemini-2.5-flash-lite
 VITE_GEMINI_TEMPERATURE=0.7
 VITE_GEMINI_MAX_TOKENS=2048
 ```

@@ -49,35 +49,31 @@ export function PlantIdentify() {
 
       let parsed: any = {};
       try {
-        parsed = JSON.parse(geminiResponse);
-        setResult({
-          name: parsed.plant_name || 'Unknown',
-          scientificName: parsed.scientific_name || '',
-          disease: parsed.disease_name || '',
-          diseaseDescription: parsed.disease_description || '',
-          cureDo: Array.isArray(parsed.treatment?.advice) ? parsed.treatment.advice : [],
-          cureDont: Array.isArray(parsed.treatment?.avoid) ? parsed.treatment.avoid : [],
-        });
-      } catch (e) {
-        const extractedJsonString = geminiResponse.match(/{.*}/s)?.[0];
+        const cleaned = geminiResponse.replace(/```json\s*|```\s*/gi, '').trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        const extractedJsonString = geminiResponse.match(/\{[\s\S]*\}/)?.[0];
         if (extractedJsonString) {
           try {
-            const cleaned = JSON.parse(extractedJsonString);
-            setResult({
-              name: cleaned.plant_name || 'Unknown',
-              scientificName: cleaned.scientific_name || '',
-              disease: cleaned.disease_name || '',
-              diseaseDescription: cleaned.disease_description || '',
-              cureDo: cleaned.treatment?.advice || [],
-              cureDont: cleaned.treatment?.avoid || [],
-            });
-          } catch (jsonError) {
+            parsed = JSON.parse(extractedJsonString);
+          } catch {
             fallbackRaw();
+            return;
           }
         } else {
           fallbackRaw();
+          return;
         }
       }
+
+      setResult({
+        name: parsed.plant_name || 'Unknown',
+        scientificName: parsed.scientific_name || '',
+        disease: parsed.disease_name || '',
+        diseaseDescription: parsed.disease_description || '',
+        cureDo: Array.isArray(parsed.treatment?.advice) ? parsed.treatment.advice : [],
+        cureDont: Array.isArray(parsed.treatment?.avoid) ? parsed.treatment.avoid : [],
+      });
     } catch (error) {
       console.error('Error identifying plant:', error);
     } finally {

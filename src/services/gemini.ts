@@ -28,7 +28,7 @@ class GeminiService {
   constructor(config: GeminiConfig) {
     this.genAI = new GoogleGenerativeAI(config.apiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: config.model || 'gemini-2.0-flash-exp',
+      model: config.model || 'gemini-2.5-flash-lite',
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,
@@ -101,8 +101,15 @@ class GeminiService {
           throw new Error('Content was blocked by safety filters');
         }
 
+        let text = '';
+        try {
+          text = response.text();
+        } catch {
+          text = candidate.content?.parts?.map(p => p.text).filter(Boolean).join('') || '';
+        }
+
         return {
-          text: response.text(),
+          text,
           finishReason: candidate.finishReason || 'STOP',
           safetyRatings: candidate.safetyRatings,
           usageMetadata: response.usageMetadata,
@@ -141,9 +148,14 @@ class GeminiService {
 
     return this.retryWithBackoff(async () => {
       try {
-        // Extract base64 data and mime type from data URL
-        const [header, base64Data] = imageData.split(',');
-        const mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+        let base64Data = imageData;
+        let mimeType = 'image/jpeg';
+
+        if (imageData.includes(',')) {
+          const [header, data] = imageData.split(',');
+          base64Data = data;
+          mimeType = header.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+        }
 
         const imagePart = {
           inlineData: {
@@ -165,8 +177,15 @@ class GeminiService {
           throw new Error('Image content was blocked by safety filters');
         }
 
+        let text = '';
+        try {
+          text = response.text();
+        } catch {
+          text = candidate.content?.parts?.map(p => p.text).filter(Boolean).join('') || '';
+        }
+
         return {
-          text: response.text(),
+          text,
           finishReason: candidate.finishReason || 'STOP',
           safetyRatings: candidate.safetyRatings,
           usageMetadata: response.usageMetadata,

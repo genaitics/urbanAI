@@ -22,7 +22,7 @@ class AIOrchestrator {
     if (import.meta.env.VITE_GEMINI_API_KEY) {
       this.geminiService = new GeminiService({
         apiKey: import.meta.env.VITE_GEMINI_API_KEY,
-        model: import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp',
+        model: import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash-lite',
       });
 
       this.providers.push({
@@ -46,33 +46,55 @@ class AIOrchestrator {
     return systemPrompts[type as keyof typeof systemPrompts] || systemPrompts.chat;
   }
 
+  private buildPrompt(
+    message: string,
+    type: 'chat' | 'planning' | 'identification' = 'chat',
+    context?: ChatMessage[]
+  ): string {
+    const systemPrompt = this.getSystemPrompt(type);
+    let prompt = `${systemPrompt}\n\n`;
+
+    if (context && context.length > 0) {
+      const history = context
+        .filter(m => m.content && (m.role === 'user' || m.role === 'assistant'))
+        .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+        .join('\n');
+      if (history) {
+        prompt += `Previous conversation history:\n${history}\n\n`;
+      }
+    }
+
+    prompt += `User: ${message}`;
+    return prompt;
+  }
+
   async generateResponse(
     message: string,
-    type: 'chat' | 'planning' | 'identification' = 'chat'
+    type: 'chat' | 'planning' | 'identification' = 'chat',
+    context?: ChatMessage[]
   ): Promise<any> {
     if (!this.geminiService) {
-      throw new Error('Gemini service not available');
+      throw new Error('Gemini API is not configured. Please set VITE_GEMINI_API_KEY in your .env file.');
     }
-    const systemPrompt = this.getSystemPrompt(type);
-    const geminiPrompt = `${systemPrompt}\n\nUser: ${message}`;
+    const geminiPrompt = this.buildPrompt(message, type, context);
     return this.geminiService.generateContent(geminiPrompt);
   }
 
   async generateStreamResponse(
     message: string,
-    type: 'chat' | 'planning' | 'identification' = 'chat'
+    type: 'chat' | 'planning' | 'identification' = 'chat',
+    context?: ChatMessage[]
   ): Promise<AsyncGenerator<string, void, unknown>> {
     if (!this.geminiService) {
-      throw new Error('Gemini service not available');
+      throw new Error('Gemini API is not configured. Please set VITE_GEMINI_API_KEY in your .env file.');
     }
-    const systemPrompt = this.getSystemPrompt(type);
-    const geminiPrompt = `${systemPrompt}\n\nUser: ${message}`;
+    const geminiPrompt = this.buildPrompt(message, type, context);
     return this.geminiService.generateStreamContent(geminiPrompt);
   }
 
   async analyzeImage(imageData: string, prompt: string): Promise<any> {
     if (!this.geminiService) {
-      throw new Error('Gemini service not available');
+      throw new Error('Gemini API is not configured. Please set VITE_GEMINI_API_KEY in your .env file.');
     }
     return this.geminiService.analyzeImage(imageData, prompt);
   }
@@ -82,7 +104,7 @@ class AIOrchestrator {
   }
 
   getCurrentModel(): string | null {
-    return import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp';
+    return import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash-lite';
   }
 
   getProviderStatus(): Array<{ 
